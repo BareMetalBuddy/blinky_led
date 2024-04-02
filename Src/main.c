@@ -1,6 +1,8 @@
 #include <stdint.h>
+#include <stdlib.h>
 #include "rcc.h"
 #include "status_led.h"
+#include "user_led.h"
 #include "task.h"
 #include "timx.h"
 #include "bsp.h"
@@ -18,7 +20,7 @@ void task_2(void);
 Task_t task[NUMBER_OF_TASK];
 
 /* target  : STM32F103RB*/
-/* details : just a basic example of how to blink a led using a bare-metal scheduler based on timer 2  */
+/* details : just a basic example of how to blink two leds using a bare-metal scheduler based on timer 2  */
 
 int main(void)
 {
@@ -27,9 +29,10 @@ int main(void)
 	timx_config(&timx_handler);
 	timx_update_interrupt(&timx_handler, 1);
 	status_led_init();
+	user_led_init();
 
 	task_init(&task[0],1000,0,&task_1,UNBLOCKED); /* blink each 1 seconds */
-	task_init(&task[1],200,0,&task_2,BLOCKED);
+	task_init(&task[1],500,0,&task_2,UNBLOCKED);  /* blink each 500 ms */
 
 	while(1){
 		if((timx_handler.timx->TIMx_SR) & ((uint16_t)(0x0001))){
@@ -53,7 +56,7 @@ void task_1(void)
 
 void task_2(void)
 {
-
+	user_led_toogle();
 }
 
 
